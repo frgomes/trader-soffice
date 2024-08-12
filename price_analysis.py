@@ -1,109 +1,80 @@
-    __url = "http://biz.yahoo.com/p/"
-    __xpathSectors      = '//table[2]/tr/td/table/tr/td[1]/a'
-    __xpathIndustries   = '//table[2]/tr/td/table/tr/td[1]/a'
-    __xpathCompanies    = '//table[2]/tr/td/table/tr[position()>4]'
+import requests
 
-    __labels = { 'symbol': 'Symbol',
-                 'pricechange1d': 'Price Change 1d',
-                 'marketcap': 'Market Cap',
-                 'pe': 'Price/Equity',
-                 'roe': 'Return on Equity',
-                 'dividendyield': 'Dividend Yield',
-                 'debttoequity': 'Debt/Equity',
-                 'pricetobook': 'Price/Book',
-                 'netprofitmargin': 'Net Profit Margin',
-                 'pricetofreecashflow': 'Price to Free CashFlow', }
+def send_form_data(url, data):
+  """Sends form data to a specified URL using POST method.
+
+  Args:
+    url: The URL of the endpoint to send the data to.
+    data: A dictionary containing the form data.
+
+  Returns:
+    The response from the server.
+  """
+
+  response = requests.post(url, data=data)
+  return response
+
+# Example usage:
+url = "http://fundamentus.com.br/resultado.php"
+form_data = {
+	"pl_min": "",
+	"pl_max": "",
+	"pvp_min": "3",
+	"pvp_max": "",
+	"psr_min": "",
+	"psr_max": "",
+	"divy_min": "",
+	"divy_max": "",
+	"pativos_min": "",
+	"pativos_max": "",
+	"pcapgiro_min": "",
+	"pcapgiro_max": "",
+	"pebit_min": "",
+	"pebit_max": "",
+	"fgrah_min": "",
+	"fgrah_max": "",
+	"firma_ebit_min": "",
+	"firma_ebit_max": "",
+	"firma_ebitda_min": "",
+	"firma_ebitda_max": "",
+	"margemebit_min": "",
+	"margemebit_max": "",
+	"margemliq_min": "",
+	"margemliq_max": "",
+	"liqcorr_min": "",
+	"liqcorr_max": "",
+	"roic_min": "",
+	"roic_max": "",
+	"roe_min": "",
+	"roe_max": "",
+	"liq_min": "",
+	"liq_max": "",
+	"patrim_min": "",
+	"patrim_max": "",
+	"divbruta_min": "",
+	"divbruta_max": "",
+	"tx_cresc_rec_min": "",
+	"tx_cresc_rec_max": "",
+	"setor": "",
+	"negociada": "ON",
+	"ordem": "1",
+	"x": "27",
+	"y": "15"
+}
+
+response = send_form_data(url, form_data)
+print(response.text)
 
 
-    def companies(self, url):
-        '''
-        Returns a generator which contains companies of a given industry.
-        Every tuple is made of
+"""
 
-            ``[ symbol,
-                sector,
-                industry,
-                company,
-                priceChange1d,
-                marketCap,
-                pe,
-                roe,
-                dividendYield,
-                debtToEquity,
-                priceToBook,
-                netProfitMargin,
-                priceToFreeCashFlow ]``
-
-        >>> import etlsrc
-        >>> loader = etlsrc.api.YahooProfileLoader()
-        >>> companies = loader.companies('914conameu.html')
-        >>> count = 0
-        >>> for company in companies:
-        ...  if count > 10:
-        ...      break
-        ...  count = count + 1
-        ...  print('%(symbol)s %(company)s' % company)
-        ACP.MI AcquePotabili
-        AWR AmericanStates Water Company
-        AWK AmericanWater Works Company,
-        A2A.DE AquaAmerica Inc
-        WTR AquaAmerica Inc.
-        ARTNA ArtesianResources Corp.
-        CDZI CadizInc.
-        CWT CaliforniaWater Service Group
-        BAUH78.SA CASAN
-        0855.HK ChinaWater Affairs Group Ltd.
-        CUBB.DE ChinaWater Affairs Group Ltd.
-
-        '''
-        # load HTML file
-        url = self.__url + url
-        content = self.request(url)
-        if content is None: return
-        from lxml import html
-        rows = html.parse(content).xpath(self.__xpathCompanies)
-        # process records
-        if (rows is None):
-            return
-        else:
-            for row in rows:
-                cell = self.normalise(row.xpath("./td[1]/font")[0].text_content(), self.newlineFixings)
-                (company, symbol) = self.parseNameAndSymbol(cell)
-                # extract URL
-                try:
-                    text = row.xpath("./td/font/a[2]")[0].get('href')
-                    parts = text.split('*')
-                    parts = parts[1].split('&')
-                    url = parts[0]
-                except:
-                    url = None
-                # extract other pieces of information
-                try:
-                    priceChange1d       = self.parseFloat( row.xpath("./td[ 2]/font")[0].text_content() )
-                    marketCap           = self.parseFloat( row.xpath("./td[ 3]/font")[0].text_content() )
-                    pe                  = self.parseFloat( row.xpath("./td[ 4]/font")[0].text_content() )
-                    roe                 = self.parseFloat( row.xpath("./td[ 5]/font")[0].text_content() )
-                    dividendYield       = self.parseFloat( row.xpath("./td[ 6]/font")[0].text_content() )
-                    debtToEquity        = self.parseFloat( row.xpath("./td[ 7]/font")[0].text_content() )
-                    priceToBook         = self.parseFloat( row.xpath("./td[ 8]/font")[0].text_content() )
-                    netProfitMargin     = self.parseFloat( row.xpath("./td[ 9]/font")[0].text_content() )
-                    priceToFreeCashFlow = self.parseFloat( row.xpath("./td[10]/font")[0].text_content() )
-                    yield { 'pricechange1d': priceChange1d,
-                            'marketcap': marketCap,
-                            'pe': pe,
-                            'roe': roe,
-                            'dividendyield': dividendYield,
-                            'debttoequity': debtToEquity,
-                            'pricetobook': priceToBook,
-                            'netprofitmargin': netProfitMargin,
-                            'pricetofreecashflow': priceToFreeCashFlow,
-                            'symbol': symbol,
-                            'url': url,
-                            'sector': '',
-                            'industry': '',
-                            'company': company }
-                except Exception as e:
-                    msg = "%s;%s;%s;%s" % (symbol, company, url, e)
-                    self.__logger.error(msg)
-                    raise RuntimeError(msg)
-            return
+Header
+---------------------------------------------------
+Referer: https://fundamentus.com.br/buscaavancada.php
+Content-Type: application/x-www-form-urlencoded
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0
+---
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-GB,en;q=0.7,pt-BR;q=0.3
+"""
