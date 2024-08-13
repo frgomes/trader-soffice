@@ -1,6 +1,6 @@
 import requests
 
-def send_form_data(url, data):
+def requests_post(url, headers, data):
   """Sends form data to a specified URL using POST method.
 
   Args:
@@ -11,11 +11,19 @@ def send_form_data(url, data):
     The response from the server.
   """
 
-  response = requests.post(url, data=data)
+  response = requests.post(url, headers=headers, data=data)
   return response
 
 # Example usage:
 url = "http://fundamentus.com.br/resultado.php"
+headers = {
+  "Referer": "https://fundamentus.com.br/buscaavancada.php",
+  "Content-Type": "application/x-www-form-urlencoded",
+  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0",
+  "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,/;q=0.8",
+  "Accept-Encoding": "gzip, deflate, br, zstd",
+  "Accept-Language": "en-GB,en;q=0.7,pt-BR;q=0.3"
+}
 form_data = {
 	"pl_min": "",
 	"pl_max": "",
@@ -62,19 +70,28 @@ form_data = {
 	"y": "15"
 }
 
-response = send_form_data(url, form_data)
-print(response.text)
+#response = requests_post(url, headers, form_data)
+#print(response)
 
+xheaders = {
+  "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
+  "Accept-Encoding": "gzip, deflate, br, zstd",
+  "Accept-Language": "en-GB,en;q=0.7,pt-BR;q=0.3",
+  "Connection": "keep-alive",
+  "Cookie": "PHPSESSID=g1dj0o61ho5rc41d023tah9ahm; cf_clearance=XUD9EpwGfEMi8rWO447LhL5h74niuV79BAkCaAStwcc-1723534634-1.0.1.1-lOE80jZSfYETJDYlzvYR8ZWr8jCP8uG7dx_ktDH89j.AY0ABS4XbMl9_zHvJoA9zE6Rv6Oj0w4AS8A.RRg3XCQ",
+  "DNT": "1",
+  "Host": "fundamentus.com.br",
+  "Priority": "u=0, i",
+  "Sec-Fetch-Dest": "document",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-Site": "none",
+  "Sec-Fetch-User": "?1",
+  "Sec-GPC": "1",
+  "TE": "trailers",
+  "Upgrade-Insecure-Requests": "1",
+  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0",
+}
 
-"""
-
-Header
----------------------------------------------------
-Referer: https://fundamentus.com.br/buscaavancada.php
-Content-Type: application/x-www-form-urlencoded
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0
----
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8
-Accept-Encoding: gzip, deflate, br, zstd
-Accept-Language: en-GB,en;q=0.7,pt-BR;q=0.3
-"""
+#r=requests.get('https://fundamentus.com.br', headers=xheaders)
+r=requests.get('https://api.github.com/events', headers=xheaders)
+print(r.status_code)
